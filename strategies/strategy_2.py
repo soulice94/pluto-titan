@@ -1,6 +1,6 @@
 from executor import Executor
 
-async def run():
+async def run(file_uuid: str):
     try:
         prompt  =  ("In the next text in spanish, after 'TRANSACCIONES' extract all "
                     "the transactions and their details, the fields should be 'Merchant' (concept of the transaction), "
@@ -16,7 +16,7 @@ async def run():
                     "any kind of of formatting for example ** neither the beginning nor the end of the text. "
                     "For the second column just use 'amount'.")
         extractor_params = {
-            'file_name': 'pdfs/nu.pdf',
+            'file_name': f"temp_pdfs/{file_uuid}.pdf",
             'pages_to_extract': [3, 4],  # Specify the pages you want to extract
         }
 

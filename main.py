@@ -1,14 +1,45 @@
-import asyncio
+from fastapi import FastAPI, UploadFile, File
 import strategies.strategy_1 as strategy1
 import strategies.strategy_2 as strategy2
-
-async def main():
-    try:
-        # result1 = await strategy1.run()
-        result2 = await strategy2.run()
-    except Exception as e:
-        print(f"Error: {e}")
+import aiofiles
+import uuid
+from pydantic import BaseModel
+from typing import Annotated
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+class ExecuteStrategyRequest(BaseModel):
+    file_uuid: str
+    strategy: str
+
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the PDF Transaction Extractor API"}
+
+@app.post("/uploadfile/")
+async def upload_file(
+    file: Annotated[UploadFile, File()]
+):
+    file_content = await file.read()
+    file_uuid = uuid.uuid4()
+    #saving the file inside the temp_pdfs folder
+    print(f"Saving file with UUID: {file_uuid}")
+    async with aiofiles.open(f"temp_pdfs/{str(file_uuid)}.pdf", "wb") as f:
+        await f.write(file_content)
+    # Here you would typically save the file or process it
+    print(f"Received file: {file.filename} with UUID: {file_uuid}")
+    return {"filename": file.filename, "file_uuid": str(file_uuid)}
+
+@app.post("/execute_strategy/")
+async def execute_strategy(request: ExecuteStrategyRequest):
+    file_uuid, strategy = request.file_uuid, request.strategy
+    result = ''
+    if strategy == "1":
+        result = await strategy1.run(file_uuid)
+    elif strategy == "2":
+        result = await strategy2.run(file_uuid)
+    else:
+        return {"error": "Invalid strategy selected. Please choose '1' or '2'."}
+
+    return {"result": result}
