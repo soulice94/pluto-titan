@@ -14,7 +14,8 @@ async def run(file_uuid: str):
                     "As a result, just return each 'Merchant' with its total 'amount' and nothing else. "
                     "Finally return the results as a csv format, for the first column use 'Merchant', don't add "
                     "any kind of of formatting for example ** neither the beginning nor the end of the text. "
-                    "For the second column just use 'amount'.")
+                    "For the second column just use 'Amount'. Also: the final result should be bare text, dont add any "
+                    "kind of formatting like adding '```' or any other character, just the text itself.")
         extractor_params = {
             'file_name': f"temp_pdfs/{file_uuid}.pdf",
             'pages_to_extract': [3, 4],  # Specify the pages you want to extract

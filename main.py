@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 import strategies.strategy_1 as strategy1
 import strategies.strategy_2 as strategy2
 import aiofiles
@@ -13,11 +14,24 @@ class ExecuteStrategyRequest(BaseModel):
 
 app = FastAPI()
 
+origins = [
+    'http://localhost:8081',
+    'http://192.168.68.*:8081',
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the PDF Transaction Extractor API"}
 
-@app.post("/uploadfile/")
+@app.post("/file/upload/")
 async def upload_file(
     file: Annotated[UploadFile, File()]
 ):
@@ -29,9 +43,9 @@ async def upload_file(
         await f.write(file_content)
     # Here you would typically save the file or process it
     print(f"Received file: {file.filename} with UUID: {file_uuid}")
-    return {"filename": file.filename, "file_uuid": str(file_uuid)}
+    return {"file_name": file.filename, "file_uuid": str(file_uuid)}
 
-@app.post("/execute_strategy/")
+@app.post("/file/filter/")
 async def execute_strategy(request: ExecuteStrategyRequest):
     file_uuid, strategy = request.file_uuid, request.strategy
     result = ''
