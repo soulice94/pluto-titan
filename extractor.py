@@ -1,5 +1,6 @@
 import pymupdf
 
+
 class PDFExtractor:
     def __init__(self, file_name, pages_to_extract, password=None):
         self.file_name = file_name
@@ -13,15 +14,14 @@ class PDFExtractor:
             auth_status = self.doc.authenticate(self.password)
             if not auth_status:
                 raise ValueError("Authentication failed with the provided password.")
-    
+
     def close(self):
         if self.doc:
             self.doc.close()
 
-
     def extract_text(self):
         self.open()
-        pdf_text_content = ''
+        pdf_text_content = ""
         page_number = 1
         for page in self.doc:
             if page_number in self.pages_to_extract:

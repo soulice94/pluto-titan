@@ -1,6 +1,7 @@
 from extractor import PDFExtractor
 from filter import Filter
 
+
 class Executor:
     def __init__(self, extractor_params, filter_params):
         self.extractor = PDFExtractor(**extractor_params)

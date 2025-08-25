@@ -5,18 +5,20 @@ import strategies.strategy_2 as strategy2
 import aiofiles
 import uuid
 from pydantic import BaseModel
-from typing import Annotated
+from typing import Annotated, List
+from classifier import SimpleMerchantClassifier
 
 
 class ExecuteStrategyRequest(BaseModel):
     file_uuid: str
     strategy: str
 
+
 app = FastAPI()
 
 origins = [
-    'http://localhost:8081',
-    'http://192.168.68.*:8081',
+    "http://localhost:8081",
+    "http://192.168.68.*:8081",
 ]
 
 app.add_middleware(
@@ -27,17 +29,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the PDF Transaction Extractor API"}
 
+
 @app.post("/file/upload/")
-async def upload_file(
-    file: Annotated[UploadFile, File()]
-):
+async def upload_file(file: Annotated[UploadFile, File()]):
     file_content = await file.read()
     file_uuid = uuid.uuid4()
-    #saving the file inside the temp_pdfs folder
+    # saving the file inside the temp_pdfs folder
     print(f"Saving file with UUID: {file_uuid}")
     async with aiofiles.open(f"temp_pdfs/{str(file_uuid)}.pdf", "wb") as f:
         await f.write(file_content)
@@ -45,10 +47,11 @@ async def upload_file(
     print(f"Received file: {file.filename} with UUID: {file_uuid}")
     return {"file_name": file.filename, "file_uuid": str(file_uuid)}
 
+
 @app.post("/file/filter/")
 async def execute_strategy(request: ExecuteStrategyRequest):
     file_uuid, strategy = request.file_uuid, request.strategy
-    result = ''
+    result = ""
     if strategy == "1":
         result = await strategy1.run(file_uuid)
     elif strategy == "2":
@@ -57,3 +60,28 @@ async def execute_strategy(request: ExecuteStrategyRequest):
         return {"error": "Invalid strategy selected. Please choose '1' or '2'."}
 
     return {"result": result}
+
+
+class MerchantClassificationRequest(BaseModel):
+    merchants: List[str]
+    similarity_threshold: float = 0.7
+
+
+@app.post("/merchants/classify-simple/")
+async def classify_merchants_simple(request: MerchantClassificationRequest):
+    """Group similar merchants using fuzzy matching"""
+    # Initialize simple classifier
+    simple_classifier = SimpleMerchantClassifier()
+    try:
+        groups = simple_classifier.group_merchants(
+            request.merchants,
+            int(request.similarity_threshold * 100),  # Convert to percentage
+        )
+
+        return {
+            "groups": groups,
+            "total_groups": len(groups),
+            "total_merchants": len(request.merchants),
+        }
+    except Exception as e:
+        return {"error": f"Classification failed: {str(e)}"}
