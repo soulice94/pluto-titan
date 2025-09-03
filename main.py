@@ -16,6 +16,10 @@ class ExecuteStrategyRequest(BaseModel):
 
 app = FastAPI()
 
+# CORS settings
+# modify the IP addresses as needed
+# the pluto app will be accessed from these origins
+# I ran this project in local development
 origins = [
     "http://localhost:8081",
     "http://192.168.68.*:8081",

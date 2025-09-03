@@ -10,7 +10,8 @@ wheels/
 .venv
 .ruff_cache/
 .DS_Store
-*.pdf
+pdfs/
+temp_pdfs/
 
 
 
