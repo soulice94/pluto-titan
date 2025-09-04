@@ -1,4 +1,4 @@
-from fuzzywuzzy import fuzz, process
+from fuzzywuzzy import fuzz
 import re
 from typing import List
 from pydantic import BaseModel

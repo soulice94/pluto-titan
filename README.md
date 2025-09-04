@@ -2,6 +2,31 @@
 
 Pluto Titan is a FastAPI-based service for extracting and classifying transaction data from PDF bank statements using custom strategies and merchant grouping logic.
 
+## Explaining Pluto Titan
+I write this backend as part of a proof of concept for the scopes for using LLMS to extract data from bank statements. The idea is to have a backend that can handle different types of bank statements (in this case, credit card statements) and extract the relevant transaction data using AI-powered strategies. For achieve this I use FastAPI for building the API, PyMuPDF for PDF text extraction, and fuzzy matching techniques for merchant classification (but for the final use I don't integrate it but it helps me to introduce me into Data Science). The project is designed to be extensible, allowing for the 
+addition of new extraction strategies and customization of prompts for improved accuracy.
+
+## Implementation Details
+The implementation of Pluto Titan involves several key components:
+
+1. **FastAPI**: The web framework used to build the API, providing a simple and efficient way to handle HTTP requests and responses.
+2. **PyMuPDF**: A library for extracting text from PDF documents, enabling the extraction of transaction data from bank statements.
+3. **Ollama**: A local LLM server that allows to run LLMs locally and use them for text extraction and processing.
+4. **DeepSeek**: A LLM model for general proposes, in this case I use it for text extraction and processing.
+5. **GPT-OSS**: A open-source LLM model that can be used for various text processing tasks.
+6. **Fuzzy Matching**: Techniques used to group similar merchants based on their names, improving the accuracy of merchant classification.
+
+The project is structured to allow for easy extension and modification, making it adaptable to different types of bank statements and extraction requirements.
+
+## Creating a new strategy
+To create a new strategy for extracting transactions from a different type of bank statement, follow these steps:
+1. **Define the Strategy**: Identify the unique characteristics of the bank statement format and determine how to extract the relevant transaction data.
+2. **Implement the Strategy**: Create a new Python file in the `strategies/` folder, implementing the extraction logic using PyMuPDF and any necessary text processing techniques.
+3. **Integrate with the API**: Update the `executor.py` file to include the new strategy, allowing it to be selected via the API.
+4. **Test the Strategy**: Upload sample bank statements and verify that the extraction works as expected.
+
+The most important part is to define the prompts correctly, as they will determine the accuracy of the extraction. You can customize the prompts in the strategy file to better suit the specific format of the bank statement.
+
 ## Features
 - Upload PDF bank statements and extract transaction data using AI-powered strategies
 - Filter and refine extracted data with custom prompts
@@ -15,7 +40,7 @@ Pluto Titan is a FastAPI-based service for extracting and classifying transactio
 - `executor.py`: Orchestrates extraction and filtering
 - `classifier.py`: Groups merchants using fuzzy matching
 - `strategies/`: Contains extraction strategies for different PDF formats
-- `pdfs/`, `temp_pdfs/`: PDF storage folders
+- `temp_pdfs/`: PDF storage folders
 
 ## Setup
 1. **Install dependencies**
@@ -24,7 +49,7 @@ Pluto Titan is a FastAPI-based service for extracting and classifying transactio
    # or if using uv
    uv pip install -r requirements.txt
    ```
-   Additional dependencies (for merchant classification):
+   Additional dependencies (for merchant classification, optional):
    ```bash
    pip install fuzzywuzzy python-levenshtein
    ```
